@@ -21,6 +21,7 @@ The model aggregates patch-level information to produce **slide-level prediction
   * **Normal (non-cancerous)**
 * Use **slide-level labels only (weak supervision)**
 * Provide **spatial interpretability using attention**
+* Deliver an **interactive Streamlit clinical dashboard** and **PDF diagnostic reports**
 
 ---
 
@@ -145,22 +146,25 @@ Train on 4 → Test on 1 (repeat 5 times)
 ```text
 MIL/
 │
-├── features/                # Input feature files (.pt)
+├── features/                  # Input pre-extracted feature files (.pt)
 ├── models/
-│   └── five_fold/          # Trained models
+│   └── five_fold/             # Trained ML models
+├── outputs/                   # Exported heatmaps and diagnostic reports
 │
-├── clam_model.py           # CLAM architecture
-├── train_clam_5fold.py     # Training script
-├── gen_labels.py           # Label generation
-├── check_features.py       # Feature validation
-├── inspect_data.py         # Debugging script
-│
-└── README.md
+├── app.py                     # Streamlit Clinical Dashboard interface
+├── pipeline.py                # Full inference and data processing pipeline
+├── heatmap_utils.py           # Dual heatmap generation and color mapping
+├── report_generator.py        # PDF Histopathology Diagnostic Report generation
+├── test_run_full_inference.py # End-to-end inference testing
+├── clam_model.py              # CLAM architecture implementation
+├── train_clam_5fold.py        # Cross-validation training script
+├── check_features.py          # Data validation script
+└── readme.md                  # Project documentation
 ```
 
 ---
 
-## 🔍 Grid Reconstruction (Your Task)
+## 🔍 Grid Reconstruction
 
 After model prediction, spatial structure is reconstructed using patch coordinates.
 
@@ -196,11 +200,12 @@ grid[i][j] = mean attention of patches in region
 
 ## 🎨 Output
 
-For each slide:
+For each slide processed through the pipeline:
 
-* **Prediction**: Tumor / Normal
-* **Confidence score**
-* **Attention heatmap** showing important regions
+* **Prediction**: Tumor / Normal classification
+* **Confidence Score**: Prediction probability
+* **Interactive Dual-Heatmaps**: Interactive spatial attention rendering via Streamlit dashboard
+* **Histopathology PDF Report**: Exportable medical-grade PDF with extracted metrics
 
 ---
 
@@ -239,7 +244,7 @@ For each slide:
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 
 * Buddham Rajbhandari
 * Kaviya Darshini
