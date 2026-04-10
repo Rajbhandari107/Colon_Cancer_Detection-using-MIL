@@ -1,0 +1,51 @@
+ColonAI: CLAM-based MIL for Colon Cancer Detection
+=================================================
+
+Project Overview
+----------------
+ColonAI is an advanced histopathology inference pipeline using Attention-based Multiple Instance Learning (CLAM-SB) to classify colon whole-slide images (WSIs) as either Tumour or Normal. It leverages 5-fold cross-validated models and provides extensive visual and clinical reporting functions.
+
+Core Features & Implementation Summary
+--------------------------------------
+
+1. Machine Learning Backend (`clam_model.py` & `train_clam_5fold.py`)
+   - Model Architecture: CLAM-SB (Attention-based MIL).
+   - Features: Handles [N, 2048] patch-level ResNet-50 features from SVS slide scans.
+   - Training: Implements a 5-fold stratified cross-validation setup for robust metrics.
+   - Decision Calibration: Custom decision thresholds (e.g., 0.276) tuned via F1 scoring over the training sets to minimize false negatives.
+
+2. Diagnostic Inference Pipeline (`pipeline.py`)
+   - Handles the ingestion of feature tensors (`.pt` bags).
+   - Single fold vs. Ensemble inference. Ensembling averages probabilities and raw patch attentions over all 5 trained models.
+   - Computes slide-level predictions, metrics, and captures full patch-level attention arrays.
+   - Decodes actual TCGA labels dynamically based on file naming strings.
+
+3. Spatial Attention Heatmaps (`heatmap_utils.py`)
+   - Grid Reconstruction: Reconstructs attention distribution accurately directly to real spatial coordinates present within the gigapixel WSI.
+   - Renders low-resolution (8x8) and high-resolution (16x16) "Focus Maps".
+   - Colors hotspots indicating the cellular patches the model relied on highest for its verdict.
+
+4. Diagnostic Report Generation (`report_generator.py`)
+   - Powered by standard PDF engineering (`reportlab`). 
+   - Produces clean, professional, clinical-style AI reports in PDF bytes. 
+   - Sections encapsulate: Case Information, Diagnostic Findings (Probability, Confidence, Threshold markers), AI Interpretations, and integrated spatial attention heatmaps.
+   - Robust disclaimer explicitly denoting the report is generated via experimental AI models for purely research purposes.
+
+5. Interactive Streamlit Dashboard (`app.py`)
+   - Fully interactive user interface bridging the MIL models into a usable platform.
+   - Designed with stylized UI components - sleek dark mode aesthetics, dynamic colored status metric cards, and clean HTML/CSS overlays.
+   - File Uploader: Drop pre-extracted WSI feature `.pt` files flawlessly.
+   - Execution: Automatically infers through the ensemble logic seamlessly once attached.
+   - Displays:
+      - Raw metrics like slide patch counts and confident levels via customized visual probability scales. 
+      - The side-by-side 8x8/16x16 attention map visualizations plotted interactively on the webpage.
+      - Single-click automated clinical diagnostic PDF downloads linked cleanly to `report_generator.py` functionality.
+   - Warns users about known failure cases mapping right to the cross-validation analysis insights.
+
+6. Extracted CLI / Test Suites
+   - `test_run_full_inference.py` / `check_features.py`: Unit and integration scripts handling rapid checks of `.pt` coordinate integrity. 
+   - `inspect_data.py`: Used continuously to confirm feature dimensions mapping to [N, 2048] standards.
+
+Data Standard 
+-------------
+The data processed heavily uses `.pt` configurations expecting serialized python arrays conforming strictly to: `{'features': tensor[N, 2048], 'coords': tensor[N, 2]}`. Without coordinates, spatial maps elegantly degrade and skip execution, allowing fallback raw inference classification.

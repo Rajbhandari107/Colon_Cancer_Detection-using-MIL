@@ -1,0 +1,6 @@
+File processed: features\TCGA-3L-AA1B-01Z-00-DX2.17CE3683-F4B1-4978-A281-8F620C4D77B4.pt
+Feature shape: torch.Size([26812, 2048])
+Probability: 0.1495
+Prediction: 0
+True Label: 1
+Accuracy: 0.00
